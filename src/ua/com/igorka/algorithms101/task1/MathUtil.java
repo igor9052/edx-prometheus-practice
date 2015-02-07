@@ -1,14 +1,15 @@
 package ua.com.igorka.algorithms101.task1;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by igor on 04.02.15
  * Project name: Task1
  */
 public class MathUtil {
+
+    private List<String> adbcList = new ArrayList<>();
 
     private String[] mulTable = new String[10];
     private String x;
@@ -168,7 +169,7 @@ public class MathUtil {
         }
     }
 
-    public String plus(String x, String y) {
+    private String plus(String x, String y) {
         return plus(x, y, 0);
     }
 
@@ -183,7 +184,7 @@ public class MathUtil {
         return result;
     }
 
-    public String minus(String x, String y) {
+    private String minus(String x, String y) {
         char [] cx = x.toCharArray();
         char [] cy = y.toCharArray();
         char [] r1 = new char[x.length()];
@@ -232,10 +233,14 @@ public class MathUtil {
         return result;
     }
 
+    public List<String> getAdbcList() {
+        return adbcList;
+    }
+
     /*****************KARATSUBA method******************/
 
 
-    public String mulK(String x, String y) {
+    public String mulKaratsuba(String x, String y) {
         if (x.length() == 1 && y.length() == 1) {
             return mul(x, y);
         }
@@ -243,19 +248,38 @@ public class MathUtil {
     }
 
     private String cutNumber(String x, String y) {
+        int length = Integer.max(x.length(), y.length());
+        x = checkNumber(x,length);
         String a = x.substring(0, x.length() / 2);
         String b = x.substring(x.length() / 2, x.length());
+        y = checkNumber(y, length);
         String c = y.substring(0, y.length() / 2);
         String d = y.substring(y.length() / 2, y.length());
         return abcd(a,b,c,d,x.length());
     }
 
+    private String checkNumber(String value,int length) {
+        if (length % 2 != 0) {
+            length++;
+        }
+        char [] zero = new char[length - value.length()];
+        for (int i = 0; i < zero.length; i++) {
+            zero[i] = (char)48;
+        }
+        return String.valueOf(zero).concat(value);
+    }
+
     private String abcd(String a, String b, String c, String d, int n) {
-        String ac = mulK(a, c);
-        String bd = mulK(b, d);
-        String ad_bc = mulK(plus(a, b), plus(c, d)); // need to implement
+        String ac = mulKaratsuba(a, c);
+        System.out.println("ac: " + ac);
+        String bd = mulKaratsuba(b, d);
+        System.out.println("bd: " + bd);
+        String ad_bc = mulKaratsuba(plus(a, b), plus(c, d));
         ad_bc = minus(ad_bc, ac);
         ad_bc = minus(ad_bc, bd);
+        System.out.println("ad_bc: " + ad_bc);
+        /*Conter for ad_bc*/
+        adbcList.add(ad_bc);
         String r1 = powerTenN(ac, n);
         String r2 = powerTenN(ad_bc, n / 2);
         String result = plus(r1, r2);
@@ -272,10 +296,23 @@ public class MathUtil {
         if (n == 0) {
             return value;
         }
+        if ("0".equals(value)) {
+            return value;
+        }
         String zeroTail = "";
         for (int i = 0; i < n; i++) {
             zeroTail = zeroTail.concat("0");
         }
         return value.concat(zeroTail);
+    }
+
+    public int countAdbc(String value) {
+        int counter = 0;
+        for (String str : adbcList ) {
+            if (value.equals(str)) {
+                counter++;
+            }
+        }
+        return counter;
     }
 }
